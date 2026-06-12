@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ระบบบันทึกการใช้ยาและเวชภัณฑ์</title>
+
+<meta property="og:title" content="ระบบบันทึกการใช้ยาและเวชภัณฑ์">
+<meta property="og:description" content="บริษัท เคนคูนเอกซ์ จำกัด">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://diyaja.github.io/medical-system/logo.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f1117;--bg2:#161b27;--bg3:#1e2538;--bg4:#252d42;
+  --card:#1a2035;--border:#2a3350;--border2:#354070;
+  --text:#e8eaf6;--text2:#9ba3c4;--text3:#6b7599;
+  --green:#22c55e;--green2:#16a34a;--green-bg:rgba(34,197,94,0.1);
+  --blue:#3b82f6;--blue2:#2563eb;--blue-bg:rgba(59,130,246,0.1);
+  --amber:#f59e0b;--amber2:#d97706;--amber-bg:rgba(245,158,11,0.1);
+  --red:#ef4444;--red2:#dc2626;--red-bg:rgba(239,68,68,0.1);
+  --purple:#a855f7;--purple-bg:rgba(168,85,247,0.1);
+  --cyan:#06b6d4;--cyan-bg:rgba(6,182,212,0.1);
+  --accent:#4f8ef7;
+  --sidebar-w:240px;--header-h:60px;--radius:10px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+#sidebar{position:fixed;left:0;top:0;width:var(--sidebar-w);height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px}
+.logo-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.3}
+.logo-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:12px 0}
+.nav-section{padding:6px 16px 4px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:all .2s;color:var(--text2);font-size:13.5px;font-weight:500;border-left:3px solid transparent;margin:1px 0}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(79,142,247,0.12);color:var(--accent);border-left-color:var(--accent)}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:10px}
+.avatar{width:34px;height:34px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+#header{position:fixed;left:var(--sidebar-w);top:0;right:0;height:var(--header-h);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;z-index:99}
+.page-title{font-size:16px;font-weight:700;flex:1}
+.header-btns{display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+.btn-primary{background:var(--blue2);color:#fff}.btn-primary:hover{background:var(--blue)}
+.btn-outline{background:transparent;color:var(--text2);border:1px solid var(--border2)}.btn-outline:hover{background:var(--bg3);color:var(--text)}
+.btn-danger{background:var(--red2);color:#fff}.btn-danger:hover{background:var(--red)}
+.btn-success{background:var(--green2);color:#fff}.btn-success:hover{background:var(--green)}
+.btn-sm{padding:5px 10px;font-size:12px}
+#main{margin-left:var(--sidebar-w);margin-top:var(--header-h);padding:24px;min-height:calc(100vh - var(--header-h))}
+.page{display:none}.page.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.blue::before{background:linear-gradient(90deg,var(--blue),var(--purple))}
+.stat-card.green::before{background:linear-gradient(90deg,var(--green),var(--cyan))}
+.stat-card.amber::before{background:linear-gradient(90deg,var(--amber),var(--red))}
+.stat-card.red::before{background:var(--red)}
+.stat-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.stat-value{font-size:28px;font-weight:700;color:var(--text);line-height:1}
+.stat-sub{font-size:11px;color:var(--text3)}
+.stat-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.stat-icon.blue{background:var(--blue-bg);color:var(--blue)}
+.stat-icon.green{background:var(--green-bg);color:var(--green)}
+.stat-icon.amber{background:var(--amber-bg);color:var(--amber)}
+.stat-icon.red{background:var(--red-bg);color:var(--red)}
+.table-wrap{overflow-x:auto;max-height:400px;overflow-y:auto}	
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,0.02)}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+.badge-purple{background:var(--purple-bg);color:var(--purple)}
+.badge-gray{background:rgba(107,117,153,0.15);color:var(--text3)}
+
+/* ── EMPLOYEE LOOKUP ── */
+.emp-lookup-wrap{position:relative}
+.emp-id-row{display:flex;gap:8px;align-items:center}
+.emp-id-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;text-transform:uppercase;letter-spacing:.5px}
+.emp-id-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,130,246,0.15)}
+.emp-id-input.loading{border-color:var(--amber)}
+.emp-id-input.found{border-color:var(--green)}
+.emp-id-input.not-found{border-color:var(--red)}
+.lookup-btn{padding:9px 14px;border-radius:8px;border:none;background:var(--blue2);color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.lookup-btn:hover{background:var(--blue)}
+.lookup-btn:disabled{background:var(--border);cursor:not-allowed}
+.emp-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:none;margin-top:10px;position:relative;overflow:hidden;animation:slideIn .25s ease}
+.emp-card.show{display:flex;align-items:center;gap:14px}
+.emp-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--green)}
+@keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.emp-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff;flex-shrink:0;font-family:inherit}
+.emp-info{flex:1;min-width:0}
+.emp-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px}
+.emp-meta{font-size:12px;color:var(--text3);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.emp-meta-item{display:flex;align-items:center;gap:4px}
+.emp-not-found{background:var(--red-bg);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);display:none;margin-top:8px;align-items:center;gap:8px}
+.emp-not-found.show{display:flex}
+.emp-lookup-spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lookup-status{display:none;margin-top:6px;font-size:12px;color:var(--text3);align-items:center;gap:6px}
+.lookup-status.show{display:flex}
+.emp-change-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text3);font-size:11px;cursor:pointer;font-family:inherit;transition:all .2s}
+.emp-change-btn:hover{background:var(--bg3);color:var(--text)}
+
+/* FORM */
+.form-grid{display:grid;gap:14px}
+.fg2{grid-template-columns:1fr 1fr}.fg3{grid-template-columns:1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;font-weight:600;color:var(--text2)}
+.form-label .required{color:var(--red)}
+.form-control{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .2s;width:100%}
+.form-control:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,130,246,0.15)}
+.form-control:disabled{opacity:.5;cursor:not-allowed;background:var(--bg)}
+select.form-control{cursor:pointer}
+textarea.form-control{resize:vertical;min-height:80px}
+.checkbox-group{display:flex;flex-wrap:wrap;gap:8px}
+.checkbox-item{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:12px;color:var(--text2);transition:all .2s}
+.checkbox-item input{accent-color:var(--blue)}
+.checkbox-item:has(input:checked){border-color:var(--blue);background:var(--blue-bg);color:var(--text)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700}
+.modal-close{width:32px;height:32px;border:none;background:var(--bg3);border-radius:8px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:18px}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* SEARCH */
+.search-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.search-wrap{position:relative;flex:1}
+.search-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 14px 9px 36px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--blue)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3)}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--bg3);padding:4px;border-radius:10px;width:fit-content}
+.tab{padding:7px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--text3);transition:all .2s;border:none;background:transparent;font-family:inherit}
+.tab.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+
+
+/* SETTINGS */
+.conn-mode-selector{display:flex;gap:8px;margin-bottom:16px}
+.mode-btn{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;text-align:center;transition:all .2s;font-family:inherit}
+.mode-btn.active{border-color:var(--blue);background:var(--blue-bg);color:var(--blue)}
+
+/* GAS URL indicator */
+.gas-status{display:flex;align-items:center;gap:6px;font-size:11px;margin-top:4px}
+.gas-dot{width:6px;height:6px;border-radius:50%;background:var(--text3)}
+.gas-dot.connected{background:var(--green);animation:pulse 2s infinite}
+.gas-dot.error{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* MISC */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-size:15px;font-weight:700}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.alert-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(245,158,11,0.2)}
+.alert-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.alert-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(34,197,94,0.2)}
+.progress{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-bar{height:100%;border-radius:3px;transition:width .5s}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:11px;background:var(--bg3);border:1px solid var(--border);color:var(--text3)}
+.text-muted{color:var(--text3);font-size:12px}
+.font-bold{font-weight:700;color:var(--text)}
+.color-green{color:var(--green)}.color-amber{color:var(--amber)}.color-red{color:var(--red)}.color-blue{color:var(--blue)}
+.flex{display:flex;align-items:center}.gap8{gap:8px}.gap4{gap:4px}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.mb16{margin-bottom:16px}.mt8{margin-top:8px}.mt4{margin-top:4px}
+.divider{height:1px;background:var(--border);margin:14px 0}
+#login-page{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:300}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px;width:380px;box-shadow:var(--shadow)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo-icon{width:60px;height:60px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 12px}
+canvas{max-height:240px}
+@media(max-width:768px){:root{--sidebar-w:0px}#sidebar{transform:translateX(-240px)}#main{margin-left:0}.g4,.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.fg2,.fg3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="logo.png" alt="Company Logo"
+       style="width:90px;height:auto;margin-bottom:12px">
+      <h1 style="font-size:18px;font-weight:700;margin-bottom:4px">ระบบบันทึกการใช้ยาและเวชภัณฑ์</h1>
+      <p style="font-size:12px;color:var(--text3)">บริษัท เคนคูนเอกซ์ จำกัด</p>
+    </div>
+    <div class="form-group mb16">
+      <label class="form-label">ชื่อผู้ใช้</label>
+      <input class="form-control" id="login-user" value="admin">
+    </div>
+    <div class="form-group mb16">
+      <label class="form-label">รหัสผ่าน</label>
+      <input class="form-control" id="login-pass" type="password" value="admin123">
+    </div>
+    <div id="login-error" class="alert alert-red" style="display:none">❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px" onclick="doLogin()">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🏥</div>
+    <div class="logo-title">ระบบบันทึกการใช้ยาและเวชภัณฑ์</div>
+    <div class="logo-sub">บริษัท เคนคูนเอกซ์ จำกัด</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">ภาพรวม</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
+    </div>
+    <div class="nav-section">จัดการยา</div>
+    <div class="nav-item" onclick="showPage('medicines',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>จัดการยา
+    </div>
+    <div class="nav-item" onclick="showPage('stock-in',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>เติมสต็อก
+    </div>
+    <div class="nav-item" onclick="showPage('stock-out',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3"/><path d="M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3"/><path d="M4 12H2"/><path d="M22 12h-2"/><path d="M12 12H4"/><path d="M12 8v8"/></svg>เบิกยา
+    </div>
+    <div class="nav-section">สุขภาพ & ความปลอดภัย</div>
+    <div class="nav-item" onclick="showPage('firstaid',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M12 14v-4M10 12h4"/></svg>บันทึกการปฐมพยาบาล/ทำแผล/การใช้ยาร่วม
+    </div>
+    <div class="nav-item" onclick="showPage('reports',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>รายงาน
+    </div>
+    <div class="nav-section">ระบบ</div>
+    <div class="nav-item" id="nav-users" onclick="showPage('users',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>ผู้ใช้งาน
+    </div>
+    <div class="nav-item" onclick="showPage('settings',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 1.41 14.14l-1.41-1.41A8 8 0 0 0 6.34 5.63L4.93 4.22A10 10 0 0 1 19.07 4.93Z"/></svg>ตั้งค่า
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="avatar" id="sidebar-avatar">A</div>
+      <div>
+        <div style="font-size:13px;font-weight:600" id="sidebar-name">Admin</div>
+        <div style="font-size:11px;color:var(--text3)" id="sidebar-role">ผู้ดูแลระบบ</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div id="header">
+  <div class="page-title" id="page-title">Dashboard</div>
+  <div class="header-btns">
+    <button class="btn btn-outline btn-sm" onclick="doLogout()">ออกจากระบบ</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="grid g4 mb16">
+    <div class="stat-card blue"><div class="stat-label">รายการยาทั้งหมด</div><div class="stat-value" id="dash-total-med">0</div><div class="stat-sub">รายการในคลัง</div><div class="stat-icon blue">💊</div></div>
+    <div class="stat-card amber"><div class="stat-label">ยาใกล้หมด</div><div class="stat-value" id="dash-low-stock">0</div><div class="stat-sub">ต่ำกว่าขั้นต่ำ</div><div class="stat-icon amber">⚠️</div></div>
+    <div class="stat-card red"><div class="stat-label">ยาหมดอายุ/ใกล้หมด</div><div class="stat-value" id="dash-expire">0</div><div class="stat-sub">ต้องดำเนินการ</div><div class="stat-icon red">⏰</div></div>
+    <div class="stat-card green"><div class="stat-label">เบิกยาเดือนนี้</div><div class="stat-value" id="dash-issue-month">0</div><div class="stat-sub">ครั้ง</div><div class="stat-icon green">📤</div></div>
+  </div>
+  <div class="grid g2 mb16">
+    <div class="card"><div class="card-title">📊 ยอดเบิกยารายเดือน</div><canvas id="chart-issue"></canvas></div>
+    <div class="card"><div class="card-title">📦 ยาที่เติมสต็อกมากที่สุด</div><canvas id="chart-receive"></canvas></div>
+  </div>
+  <div class="grid g2 mb16">
+    <div class="card"><div class="card-title">🩹 พนักงานที่ใช้บริการปฐมพยาบาลบ่อย</div><canvas id="chart-firstaid"></canvas></div>
+    <div class="card"><div class="card-title">🔥 พนักงานที่เบิกยาบ่อยที่สุด</div><canvas id="chart-symptoms"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚠️ ยาที่ต้องดำเนินการ</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>รหัสยา</th><th>ชื่อยา</th><th>คงเหลือ</th><th>ขั้นต่ำ</th><th>สถานะ</th><th>หมดอายุ</th></tr></thead>
+      <tbody id="dash-alert-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- MEDICINES -->
+<div class="page" id="page-medicines">
+  <div class="section-header">
+    <div class="section-title">💊 จัดการยา</div>
+    <button class="btn btn-primary btn-sm" id="btn-add-med" onclick="openModal('modal-add-med')">+ เพิ่มยา</button>
+  </div>
+  <div class="card mb16">
+    <div class="search-bar">
+      <div class="search-wrap" style="flex:2"><span class="search-icon">🔍</span><input class="search-input" placeholder="ค้นหายา..." id="med-search" oninput="filterMeds()"></div>
+      <select class="form-control" style="width:160px" id="med-cat-filter" onchange="filterMeds()">
+        <option value="">ทุกประเภท</option><option>ยาแก้ปวด</option><option>ยาปฏิชีวนะ</option><option>ยาลดกรด</option><option>ยาแก้แพ้</option><option>วัสดุทำแผล</option><option>อื่นๆ</option>
+      </select>
+      <select class="form-control" style="width:140px" id="med-status-filter" onchange="filterMeds()">
+        <option value="">ทุกสถานะ</option><option value="low">ใกล้หมด</option><option value="expire-soon">ใกล้หมดอายุ</option><option value="expired">หมดอายุ</option>
+      </select>
+    </div>
+    <div class="table-wrap"><table id="med-table">
+      <thead><tr><th>รหัสยา</th><th>ชื่อยา</th><th>ประเภท</th><th>หน่วย</th><th>คงเหลือ</th><th>ขั้นต่ำ</th><th>% สต็อก</th><th>วันหมดอายุ</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+      <tbody id="med-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- STOCK IN -->
+<div class="page" id="page-stock-in">
+  <div class="section-header"><div class="section-title">📥 เติมสต็อก</div></div>
+  <div class="grid g2 mb16">
+    <div class="card">
+      <div class="card-title">📋 บันทึกการรับยา</div>
+      <div class="form-grid">
+        <div class="fg2 form-grid">
+          <div class="form-group"><label class="form-label">วันที่รับ</label><input type="date" class="form-control" id="ri-date"></div>
+          <div class="form-group"><label class="form-label">ชื่อยา</label><select class="form-control" id="ri-med"><option value="">-- เลือกยา --</option></select></div>
+        </div>
+        <div class="fg3 form-grid">
+          <div class="form-group"><label class="form-label">จำนวนที่รับ</label><input type="number" class="form-control" id="ri-qty" placeholder="0" min="1"></div>
+          <div class="form-group"><label class="form-label">Lot No.</label><input class="form-control" id="ri-lot" placeholder="LOT-XXXX"></div>
+          <div class="form-group"><label class="form-label">วันหมดอายุ</label><input type="date" class="form-control" id="ri-exp"></div>
+        </div>
+        <div class="form-group"><label class="form-label">หมายเหตุ</label><input class="form-control" id="ri-remark" placeholder="หมายเหตุ (ถ้ามี)"></div>
+        <button class="btn btn-success" onclick="saveReceive()">💾 บันทึกการรับยา</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 สรุปสต็อกที่ต้องเติม</div>
+      <div id="low-stock-list"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📜 ประวัติการรับยา</div>
+    <div class="table-wrap"><table><thead><tr><th>รหัส</th><th>วันที่</th><th>ชื่อยา</th><th>จำนวน</th><th>Lot No.</th><th>วันหมดอายุ</th><th>ผู้บันทึก</th></tr></thead><tbody id="receive-history"></tbody></table></div>
+  </div>
+</div>
+
+<!-- STOCK OUT -->
+<div class="page" id="page-stock-out">
+  <div class="section-header"><div class="section-title">📤 เบิกยา</div></div>
+  <div class="grid g2 mb16">
+    <div class="card">
+      <div class="card-title">📋 แบบฟอร์มเบิกยา</div>
+      <div class="form-grid">
+
+        <!-- ── EMPLOYEE LOOKUP ── -->
+        <div class="form-group">
+          <label class="form-label">รหัสพนักงาน <span class="required">*</span>
+            <span id="so-conn-badge" style="margin-left:6px"></span>
+          </label>
+          <div class="emp-lookup-wrap">
+            <div class="emp-id-row">
+              <input class="emp-id-input" id="so-empid" placeholder="พิมพ์รหัส เช่น EMP001" oninput="onEmpIdType('so')" onkeydown="if(event.key==='Enter')lookupEmployee('so')">
+              <button class="lookup-btn" id="so-lookup-btn" onclick="lookupEmployee('so')">🔍 ค้นหา</button>
+            </div>
+            <div class="lookup-status" id="so-lookup-status">
+              <div class="emp-lookup-spinner"></div>
+              <span>กำลังค้นหาข้อมูลพนักงาน...</span>
+            </div>
+            <div class="emp-not-found" id="so-emp-not-found">❌ ไม่พบรหัสพนักงาน กรุณาตรวจสอบ</div>
+            <div class="emp-card" id="so-emp-card">
+              <div class="emp-avatar" id="so-emp-avatar">S</div>
+              <div class="emp-info">
+                <div class="emp-name" id="so-emp-name">—</div>
+                <div class="emp-meta">
+                  <span class="emp-meta-item">🏢 <span id="so-emp-dept">—</span></span>
+                  <span class="emp-meta-item">🆔 <span id="so-emp-id-display">—</span></span>
+                  <span class="emp-meta-item"><span class="badge badge-green" id="so-emp-status">ปฏิบัติงาน</span></span>
+                </div>
+              </div>
+              <button class="emp-change-btn" onclick="resetEmpLookup('so')">เปลี่ยน</button>
+            </div>
+          </div>
+        </div>
+		
+		<div class="form-group">
+			<label class="form-label">
+				วันที่เบิกยา <span class="required">*</span>
+			</label>
+			<input type="date" class="form-control" id="is-date">
+		</div>
+		
+        <div class="form-group"><label class="form-label">อาการ <span class="required">*</span></label><input class="form-control" id="is-symptom" placeholder="ระบุอาการ เช่น ปวดหัว ไข้"></div>
+        <div class="fg2 form-grid">
+          <div class="form-group">
+            <label class="form-label">ชื่อยา <span class="required">*</span></label>
+            <select class="form-control" id="is-med" onchange="showMedStock()"><option value="">-- เลือกยา --</option></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">จำนวน <span class="required">*</span> 
+			<span id="is-stock-hint" style="color:var(--text3);font-size:11px"></span></label>
+            <input type="number" class="form-control" id="is-qty" placeholder="0" min="1" max="99999"
+			oninput="if(this.value.length > 5) this.value = this.value.slice(0,5);">
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">หมายเหตุ</label><input class="form-control" id="is-remark" placeholder="หมายเหตุ (ถ้ามี)"></div>
+        <div id="is-alert" class="alert alert-red" style="display:none">⚠️ สต็อกไม่เพียงพอ</div>
+        <button class="btn btn-primary" onclick="saveIssue()">💊 บันทึกการเบิกยา</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📜 เบิกวันนี้</div>
+      <div class="table-wrap"><table><thead><tr><th>เวลา</th><th>พนักงาน</th><th>ยา</th><th>จำนวน</th></tr></thead><tbody id="issue-today-tbody">
+      </tbody></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📜 ประวัติการเบิกยาทั้งหมด</div>
+    <div class="table-wrap"><table><thead><tr><th>รหัส</th><th>วันที่</th><th>รหัสพนักงาน</th><th>ชื่อ</th><th>แผนก</th><th>ยา</th><th>จำนวน</th><th>อาการ</th></tr></thead><tbody id="issue-history"></tbody></table></div>
+  </div>
+</div>
+
+<!-- FIRST AID -->
+<div class="page" id="page-firstaid">
+  <div class="section-header"><div class="section-title">🩹 บันทึกการปฐมพยาบาล/ทำแผล/การใช้ยาร่วม</div></div>
+  <div class="card mb16">
+    <div class="card-title">📋 แบบฟอร์มบันทึก</div>
+    <div class="form-grid">
+      <div class="fg2 form-grid">
+        <div class="form-group"><label class="form-label">วันที่</label><input type="date" class="form-control" id="fa-date"></div>
+        <div class="form-group"><label class="form-label">ประเภทเคส</label>
+          <select class="form-control" id="fa-casetype">
+            <option>การปฐมพยาบาล</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ── EMPLOYEE LOOKUP (First Aid) ── -->
+      <div class="form-group">
+        <label class="form-label">รหัสพนักงาน <span class="required">*</span>
+          <span id="fa-conn-badge" style="margin-left:6px"></span>
+        </label>
+        <div class="emp-lookup-wrap">
+          <div class="emp-id-row">
+            <input class="emp-id-input" id="fa-empid" placeholder="พิมพ์รหัส เช่น EMP001" oninput="onEmpIdType('fa')" onkeydown="if(event.key==='Enter')lookupEmployee('fa')">
+            <button class="lookup-btn" id="fa-lookup-btn" onclick="lookupEmployee('fa')">🔍 ค้นหา</button>
+          </div>
+          <div class="lookup-status" id="fa-lookup-status">
+            <div class="emp-lookup-spinner"></div>
+            <span>กำลังค้นหาข้อมูลพนักงาน...</span>
+          </div>
+          <div class="emp-not-found" id="fa-emp-not-found">❌ ไม่พบรหัสพนักงาน กรุณาตรวจสอบ</div>
+          <div class="emp-card" id="fa-emp-card">
+            <div class="emp-avatar" id="fa-emp-avatar">S</div>
+            <div class="emp-info">
+              <div class="emp-name" id="fa-emp-name">—</div>
+              <div class="emp-meta">
+                <span class="emp-meta-item">🏢 <span id="fa-emp-dept">—</span></span>
+                <span class="emp-meta-item">🆔 <span id="fa-emp-id-display">—</span></span>
+              </div>
+            </div>
+            <button class="emp-change-btn" onclick="resetEmpLookup('fa')">เปลี่ยน</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">ประเภทการบาดเจ็บ</label>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="radio" name="injury" value="ของมีคมบาด"> ของมีคมบาด</label>
+          <label class="checkbox-item"><input type="radio" name="injury" value="ถลอก"> ถลอก</label>
+          <label class="checkbox-item"><input type="radio" name="injury" value="ฟกช้ำ"> ฟกช้ำ</label>
+          <label class="checkbox-item"><input type="radio" name="injury" value="น้ำร้อนลวก"> น้ำร้อนลวก</label>
+          <label class="checkbox-item"><input type="radio" name="injury" value="สารเคมี"> สารเคมี</label>
+          <label class="checkbox-item"><input type="radio" name="injury" value="สิ่งแปลกปลอมเข้าตา"> สิ่งแปลกปลอมเข้าตา</label>
+		  <label class="checkbox-item"><input type="radio" name="injury" value="ปวดขา เคล็ดขัดยอก"> ปวดขา เคล็ดขัดยอก</label>
+		  <label class="checkbox-item"><input type="radio" name="injury" value="เวียนหัวเป็นลม"> เวียนหัวเป็นลม</label>
+		  <label class="checkbox-item"><input type="radio" name="injury" value="ผื่นคัน ลมพิษ"> ผื่นคัน ลมพิษ</label>
+		  <label class="checkbox-item"><input type="radio" name="injury" value="แมลงสัตว์กัดต่อย"> แมลงสัตว์กัดต่อย</label>
+		  <label class="checkbox-item"><input type="radio" name="injury" value="แผลไฟไหม้"> แผลไฟไหม้</label>
+          <label class="checkbox-item"><input type="radio" name="injury" value="อื่นๆ"> อื่นๆ</label>
+        </div>
+      </div>
+      <div class="fg2 form-grid">
+        <div class="form-group"><label class="form-label">อาการ</label><textarea class="form-control" id="fa-symptoms" rows="3" placeholder="ระบุอาการ"></textarea></div>
+        <div class="form-group"><label class="form-label">รายละเอียดการรักษา</label><textarea class="form-control" id="fa-treatment" rows="3" placeholder="รายละเอียดการรักษา"></textarea></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">วัสดุ/ยาที่ใช้</label>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox" value="NSS"> NSS</label>
+          <label class="checkbox-item"><input type="checkbox" value="Gauze Pad"> Gauze Pad</label>
+		  <label class="checkbox-item"><input type="checkbox" value="Elastic Gauze"> Elastic Gauze</label>
+          <label class="checkbox-item"><input type="checkbox" value="Cotton Balls"> Cotton Balls</label>
+		  <label class="checkbox-item"><input type="checkbox" value="Cotton Swabs"> Cotton Swabs</label>
+          <label class="checkbox-item"><input type="checkbox" value="Alcohol"> Alcohol</label>
+          <label class="checkbox-item"><input type="checkbox" value="Betadine"> Betadine</label>
+          <label class="checkbox-item"><input type="checkbox" value="Elastic Bandage"> Elastic Bandage</label>
+		  <label class="checkbox-item"><input type="checkbox" value="เทปแต่งแผล"> เทปแต่งแผล</label>
+		  <label class="checkbox-item"><input type="checkbox" value="Counterpain Warm"> Counterpain Warm</label>
+		  <label class="checkbox-item"><input type="checkbox" value="Counterpain Cool"> Counterpain Cool</label>
+		  <label class="checkbox-item"><input type="checkbox" value="Cadramine V"> Cadramine V</label>
+		  <label class="checkbox-item"><input type="checkbox" value="Zam-Buk"> Zam-Buk</label>
+		  <label class="checkbox-item"><input type="checkbox" value="พิมเสนน้ำ"> พิมเสนน้ำ</label>
+		  <label class="checkbox-item"><input type="checkbox" value="ครีมทาแผลไฟไหม้น้ำร้อนลวก"> ครีมทาแผลไฟไหม้น้ำร้อนลวก</label>
+		  <label class="checkbox-item"><input type="checkbox" value="น้ำยาล้างตา"> น้ำยาล้างตา</label>
+          <label class="checkbox-item"><input type="checkbox" value="อื่นๆ"> อื่นๆ</label>
+        </div>
+      </div>
+      <div class="fg3 form-grid">
+        <div class="form-group"><label class="form-label">เลขที่ใบส่งตัว</label><input class="form-control" id="fa-refno" placeholder="REF-XXXX"></div>
+        <div class="form-group"><label class="form-label">วันหยุดงาน</label><input type="date" class="form-control" id="fa-lostdate"></div>
+        <div class="form-group"><label class="form-label">จำนวนวันหยุด</label><input type="number" class="form-control" id="fa-lostdays" placeholder="0"></div>
+      </div>
+      <button class="btn btn-success" onclick="saveFirstAid()">💾 บันทึกการปฐมพยาบาล/ทำแผล/การใช้ยาร่วม</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📜 ประวัติการปฐมพยาบาล/ทำแผล/การใช้ยาร่วม</div>
+    <div class="table-wrap"><table><thead><tr><th>รหัสเคส</th><th>วันที่</th><th>พนักงาน</th><th>แผนก</th><th>ประเภทเคส</th><th>การบาดเจ็บ</th><th>วัสดุ/ยาที่ใช้</th></tr></thead><tbody id="firstaid-history"></tbody></table></div>
+  </div>
+</div>
+
+<!-- REPORTS -->
+<div class="page" id="page-reports">
+  <div class="section-header">
+    <div class="section-title">📄 รายงาน</div>
+    <div style="display:flex;gap:8px">
+     <button class="btn btn-outline btn-sm" onclick="exportExcel()">
+    📊 Excel
+     </button>
+
+     <button class="btn btn-outline btn-sm" onclick="exportPDF()">
+    📄 PDF
+     </button>
+    </div>
+  </div>
+  
+  <div class="card" style="margin-bottom:12px">
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">
+
+  <div class="form-group" style="min-width:150px">
+    <label class="form-label">เดือน</label>
+    <select id="report-month"
+          class="form-control"
+          onchange="filterReports()">
+    <option value="">ทั้งหมด</option>
+    <option value="01">มกราคม</option>
+    <option value="02">กุมภาพันธ์</option>
+    <option value="03">มีนาคม</option>
+    <option value="04">เมษายน</option>
+    <option value="05">พฤษภาคม</option>
+    <option value="06">มิถุนายน</option>
+    <option value="07">กรกฎาคม</option>
+    <option value="08">สิงหาคม</option>
+    <option value="09">กันยายน</option>
+    <option value="10">ตุลาคม</option>
+    <option value="11">พฤศจิกายน</option>
+    <option value="12">ธันวาคม</option>
+  </select>
+</div>
+
+<div class="form-group" style="min-width:120px">
+  <label class="form-label">ปี</label>
+  <select id="report-year"
+          class="form-control"
+          onchange="filterReports()">
+    <option value="">ทั้งหมด</option>
+  </select>
+</div>
+
+    <div class="form-group" style="min-width:180px">
+      <label class="form-label">รหัสพนักงาน</label>
+      <input type="text"
+			 id="report-empid"
+             class="form-control"
+             placeholder="เช่น EMP001"
+             onkeydown="if(event.key==='Enter') filterReports();">
+    </div>
+
+    <button class="btn btn-primary"
+            onclick="filterReports()">
+      🔍 ค้นหา
+    </button>
+
+    <button class="btn btn-outline"
+            onclick="clearReportFilter()">
+      ♻️ ล้างค่า
+    </button>
+
+  </div>
+</div>
+  
+  <div class="tabs">
+    <button class="tab active" onclick="showTab(this,'rpt-stock')">คงเหลือ</button>
+    <button class="tab" onclick="showTab(this,'rpt-issue')">เบิกยา</button>
+    <button class="tab" onclick="showTab(this,'rpt-receive')">เติมสต็อก</button>
+    <button class="tab" onclick="showTab(this,'rpt-firstaid')">ทำแผล</button>
+  </div>
+  <div id="rpt-stock"><div class="card"><div class="card-title">📦 รายงานคงเหลือยา</div><div class="table-wrap"><table><thead><tr><th>รหัสยา</th><th>ชื่อยา</th><th>ประเภท</th><th>คงเหลือ</th><th>ขั้นต่ำ</th><th>วันหมดอายุ</th><th>สถานะ</th></tr></thead><tbody id="rpt-stock-body"></tbody></table></div></div></div>
+  <div id="rpt-issue" style="display:none"><div class="card"><div class="card-title">📤 รายงานเบิกยา</div><div class="table-wrap"><table><thead><tr><th>วันที่</th><th>รหัสพนักงาน</th><th>ชื่อ</th><th>แผนก</th><th>ยา</th><th>จำนวน</th><th>อาการ</th></tr></thead><tbody id="rpt-issue-body"></tbody></table></div></div></div>
+  <div id="rpt-receive" style="display:none"><div class="card"><div class="card-title">📥 รายงานเติมสต็อก</div><div class="table-wrap"><table><thead><tr><th>วันที่</th><th>ยา</th><th>จำนวน</th><th>Lot No.</th><th>วันหมดอายุ</th><th>ผู้บันทึก</th></tr></thead><tbody id="rpt-receive-body"></tbody></table></div></div></div>
+  <div id="rpt-firstaid" style="display:none"><div class="card"><div class="card-title">🩹 รายงานทำแผล</div><div class="table-wrap"><table><thead><tr><th>วันที่</th><th>พนักงาน</th><th>แผนก</th><th>ประเภท</th><th>การบาดเจ็บ</th><th>วัสดุ</th></tr></thead><tbody id="rpt-firstaid-body"></tbody></table></div></div></div>
+</div>
+
+<!-- USERS -->
+<div class="page" id="page-users">
+  <div class="section-header"><div class="section-title">👥 จัดการผู้ใช้งาน</div><button class="btn btn-primary btn-sm" onclick="openModal('modal-add-user')">+ เพิ่มผู้ใช้</button></div>
+  <div class="card"><div class="table-wrap"><table><thead><tr><th>รหัส</th><th>ชื่อผู้ใช้</th><th>ชื่อ-นามสกุล</th><th>แผนก</th><th>สิทธิ์</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody id="users-tbody"></tbody></table></div></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="section-header"><div class="section-title">⚙️ ตั้งค่าระบบ</div></div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="card-title">🔗 การเชื่อมต่อ Google Sheets</div>
+      <div class="conn-mode-selector">
+        <button class="mode-btn" id="mode-demo" onclick="setMode('demo')">🎭 Demo Mode</button>
+        <button class="mode-btn active" id="mode-gas" onclick="setMode('gas')">☁️ Google Sheets Live</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Google Apps Script URL (doGet)</label>
+          <input class="form-control" id="gas-url" value="https://script.google.com/macros/s/AKfycbw-ndubGLoPAnAkarDoU0nJRLQKPoRE4AM7Ocm9INW7epIt0--wiaIzlr_IgmqUO13Q/exec" oninput="onGasUrlChange()">
+          <div class="gas-status" id="gas-status-row">
+            <div class="gas-dot" id="gas-dot"></div>
+            <span id="gas-status-text" style="color:var(--text3)">ยังไม่ได้ตั้งค่า URL</span>
+          </div>
+        </div>
+        <div id="gas-guide" style="font-size:12px;color:var(--text3);background:var(--bg3);border-radius:8px;padding:12px;line-height:1.9">
+          <strong style="color:var(--text2)">โครงสร้าง GAS ที่คาดหวัง:</strong><br>
+          GET <code style="color:var(--accent)">?action=getEmployees</code> → JSON array<br>
+          <code style="color:var(--text3)">[{empId,name,dept,position,status}, ...]</code><br>
+          GET <code style="color:var(--accent)">?action=getEmployee&id=EMP001</code> → JSON object
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="testGasConnection()">🔍 ทดสอบการเชื่อมต่อ</button>
+          <button class="btn btn-success btn-sm" onclick="saveGasSettings()">💾 บันทึก</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">👥 จัดการข้อมูลพนักงาน</div>
+      <div id="emp-demo-section">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:12px">พนักงานในฐานข้อมูล Demo — <strong style="color:var(--text2)" id="emp-count">0</strong> คน</div>
+        <div class="table-wrap" style="max-height:280px;overflow-y:auto">
+          <table><thead><tr><th>รหัส</th><th>ชื่อ</th><th>แผนก</th><th>ตำแหน่ง</th></tr></thead>
+          <tbody id="emp-demo-list"></tbody></table>
+        </div>
+        <div class="divider"></div>
+        <button class="btn btn-outline btn-sm" onclick="openModal('modal-add-emp')">+ เพิ่มพนักงาน Demo</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Google Apps Script (โค้ดสมบูรณ์ — คัดลอกไปใช้ได้เลย)</div>
+      <div style="margin-bottom:8px;font-size:12px;color:var(--amber)">⚠️ Deploy ด้วย Execute as: Me และ Who has access: Anyone</div>
+      <div style="background:var(--bg);border-radius:8px;padding:14px;font-size:11px;font-family:monospace;color:var(--text2);line-height:1.7;overflow-x:auto;max-height:340px;overflow-y:auto">
+<pre id="gas-code-pre" style="white-space:pre-wrap;margin:0">function doGet(e) { return handleRequest(e); }
+function doPost(e) { return handleRequest(e); }
+
+function json(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleRequest(e) {
+  try {
+    const p = e.parameter;
+    const action = p.action;
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+    if (action === 'initHeaders') {
+      const name = p.sheet;
+      const headers = JSON.parse(p.headers);
+      let sh = ss.getSheetByName(name);
+      if (!sh) sh = ss.insertSheet(name);
+      if (sh.getLastRow() === 0) sh.appendRow(headers);
+      return json({ ok: true });
+    }
+
+    if (action === 'getAll') {
+      const sh = ss.getSheetByName(p.sheet);
+      if (!sh || sh.getLastRow() < 2) return json({ ok: true, data: [] });
+      const rows = sh.getDataRange().getValues();
+      const headers = rows[0];
+      const data = rows.slice(1).map(r => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = r[i]);
+        return obj;
+      });
+      return json({ ok: true, data });
+    }
+
+    if (action === 'append') {
+      const sh = ss.getSheetByName(p.sheet);
+      if (!sh) return json({ ok: false, error: 'Sheet not found' });
+      const row = JSON.parse(p.row);
+      const headers = sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0];
+      sh.appendRow(headers.map(h => row[h] !== undefined ? row[h] : ''));
+      return json({ ok: true });
+    }
+
+    if (action === 'update') {
+      const sh = ss.getSheetByName(p.sheet);
+      if (!sh) return json({ ok: false, error: 'Sheet not found' });
+      const row = JSON.parse(p.row);
+      const idCol = p.idCol || 'id';
+      const data = sh.getDataRange().getValues();
+      const headers = data[0];
+      const idIdx = headers.indexOf(idCol);
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][idIdx]) === String(row[idCol])) {
+          headers.forEach((h, j) => {
+            if (row[h] !== undefined) sh.getRange(i+1, j+1).setValue(row[h]);
+          });
+          return json({ ok: true });
+        }
+      }
+      return json({ ok: false, error: 'Row not found' });
+    }
+
+    if (action === 'delete') {
+      const sh = ss.getSheetByName(p.sheet);
+      if (!sh) return json({ ok: false, error: 'Sheet not found' });
+      const idCol = p.idCol || 'id';
+      const idVal = p.idVal;
+      const data = sh.getDataRange().getValues();
+      const headers = data[0];
+      const idIdx = headers.indexOf(idCol);
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][idIdx]) === String(idVal)) {
+          sh.deleteRow(i + 1);
+          return json({ ok: true });
+        }
+      }
+      return json({ ok: false, error: 'Row not found' });
+    }
+
+    return json({ ok: false, error: 'Unknown action: ' + action });
+  } catch (err) {
+    return json({ ok: false, error: err.toString() });
+  }
+}</pre>
+      </div>
+      <button class="btn btn-outline btn-sm mt8" onclick="navigator.clipboard.writeText(document.getElementById('gas-code-pre').textContent).then(()=>showSuccess('คัดลอกแล้ว','นำไปวางใน Google Apps Script ได้เลย','📋'))">📋 คัดลอก Code</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- MODALS -->
+<div class="modal-overlay hidden" id="modal-add-med">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="med-modal-title">💊 เพิ่มยาใหม่</div><button class="modal-close" onclick="closeModal('modal-add-med')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="med-edit-id">
+      <div class="form-grid">
+        <div class="fg2 form-grid">
+          <div class="form-group"><label class="form-label">รหัสยา</label><input class="form-control" id="med-id" placeholder="M001"></div>
+          <div class="form-group"><label class="form-label">ชื่อยา</label><input class="form-control" id="med-name"></div>
+        </div>
+        <div class="fg2 form-grid">
+          <div class="form-group"><label class="form-label">ประเภท</label><select class="form-control" id="med-cat"><option>ยาแก้ปวด</option><option>ยาปฏิชีวนะ</option><option>ยาลดกรด</option><option>ยาแก้แพ้</option><option>วัสดุทำแผล</option><option>อื่นๆ</option></select></div>
+          <div class="form-group"><label class="form-label">หน่วย</label><select class="form-control" id="med-unit"><option>เม็ด</option><option>แคปซูล</option><option>ซอง</option><option>ขวด</option><option>หลอด</option><option>ชิ้น</option></select></div>
+        </div>
+        <div class="fg3 form-grid">
+          <div class="form-group"><label class="form-label">จำนวน</label><input type="number" class="form-control" id="med-qty" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">ขั้นต่ำ</label><input type="number" class="form-control" id="med-min" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">วันหมดอายุ</label><input type="date" class="form-control" id="med-exp"></div>
+        </div>
+        <div class="form-group"><label class="form-label">ตำแหน่งจัดเก็บ</label><input class="form-control" id="med-loc"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-med')">ยกเลิก</button><button class="btn btn-primary" onclick="saveMedicine()">💾 บันทึก</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal-add-user">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="user-modal-title">👤 เพิ่มผู้ใช้ใหม่</div><button class="modal-close" onclick="closeModal('modal-add-user');document.getElementById('u-edit-id').value='';document.getElementById('user-modal-title').textContent='👤 เพิ่มผู้ใช้ใหม่';document.getElementById('u-pass-hint').style.display='none'">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="u-edit-id">
+      <div class="form-grid">
+        <div class="fg2 form-grid">
+          <div class="form-group"><label class="form-label">ชื่อผู้ใช้</label><input class="form-control" id="u-username"></div>
+          <div class="form-group"><label class="form-label">รหัสผ่าน</label><input type="password" class="form-control" id="u-pass" placeholder="กรอกรหัสผ่านใหม่"><div id="u-pass-hint" style="display:none;font-size:11px;color:var(--text3);margin-top:4px">⚠️ เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน</div></div>
+        </div>
+        <div class="form-group"><label class="form-label">ชื่อ-นามสกุล</label><input class="form-control" id="u-name"></div>
+        <div class="fg2 form-grid">
+          <div class="form-group"><label class="form-label">แผนก</label><select class="form-control" id="u-dept"><option>ห้องพยาบาล</option><option>ผลิต A</option><option>HR</option><option>อื่นๆ</option></select></div>
+          <div class="form-group"><label class="form-label">สิทธิ์</label><select class="form-control" id="u-role"><option value="admin">Admin</option><option value="user">User</option></select></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-user');document.getElementById('u-edit-id').value='';document.getElementById('user-modal-title').textContent='👤 เพิ่มผู้ใช้ใหม่';document.getElementById('u-pass-hint').style.display='none'">ยกเลิก</button><button class="btn btn-primary" onclick="saveUser()">💾 บันทึก</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal-add-emp">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header"><div class="modal-title">👤 เพิ่มพนักงาน (Demo)</div><button class="modal-close" onclick="closeModal('modal-add-emp')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="fg2 form-grid">
+          <div class="form-group"><label class="form-label">รหัสพนักงาน</label><input class="form-control" id="ne-id" placeholder="EMP999"></div>
+          <div class="form-group"><label class="form-label">ชื่อ-นามสกุล</label><input class="form-control" id="ne-name" placeholder="ชื่อ นามสกุล"></div>
+        </div>
+        <div class="fg2 form-grid">
+          <div class="form-group"><label class="form-label">แผนก</label>
+            <select class="form-control" id="ne-dept">
+              <option>ผลิต A</option><option>ผลิต B</option><option>ผลิต C</option><option>คลังสินค้า</option><option>บุคคล/HR</option><option>วิศวกรรม</option><option>QC/QA</option><option>ซ่อมบำรุง</option><option>ห้องพยาบาล</option><option>อื่นๆ</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">ตำแหน่ง</label><input class="form-control" id="ne-pos" placeholder="เช่น พนักงานผลิต"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-emp')">ยกเลิก</button><button class="btn btn-primary" onclick="addDemoEmp()">💾 เพิ่ม</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal-confirm">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header"><div class="modal-title">⚠️ ยืนยันการลบ</div><button class="modal-close" onclick="closeModal('modal-confirm')">✕</button></div>
+    <div class="modal-body"><p style="font-size:14px;color:var(--text2)">ต้องการลบรายการนี้ใช่หรือไม่?</p></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-confirm')">ยกเลิก</button><button class="btn btn-danger" id="confirm-delete-btn">🗑️ ลบ</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal-success">
+  <div class="modal" style="max-width:320px">
+    <div class="modal-body" style="text-align:center;padding:32px">
+      <div style="font-size:48px;margin-bottom:12px" id="success-icon">✅</div>
+      <div style="font-size:16px;font-weight:700;margin-bottom:8px" id="success-title">บันทึกสำเร็จ</div>
+      <div style="font-size:13px;color:var(--text2)" id="success-msg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──
+function saveUsersDB(){
+  localStorage.setItem('usersDB', JSON.stringify(USERS_DB));
+}
+let USERS_DB = JSON.parse(localStorage.getItem('usersDB')) || [
+  {
+    id:'U001',
+    username:'admin',
+    password:'admin123',
+    role:'admin',
+    name:'safety officer',
+    dept:'ห้องพยาบาล',
+    status:'active'
+  }
+];
+
+// ── EMPLOYEES DATABASE ──
+let EMPLOYEES_DB=[];
+
+let MEDICINES_DB=[];
+
+let RECEIVE_DB=[];
+
+let ISSUE_DB=[];
+
+let FIRSTAID_DB=[];
+
+// ── CONFIG ──
+let currentUser=null;
+let GAS_URL='https://script.google.com/macros/s/AKfycbw-ndubGLoPAnAkarDoU0nJRLQKPoRE4AM7Ocm9INW7epIt0--wiaIzlr_IgmqUO13Q/exec';
+let USE_GAS=true;
+let empLookupCache={};
+
+// avatar colors
+const AVATAR_COLORS=['#3b82f6','#a855f7','#22c55e','#f59e0b','#ef4444','#06b6d4','#ec4899'];
+function avatarColor(name){const c=name.charCodeAt(0)%AVATAR_COLORS.length;return AVATAR_COLORS[c]}
+
+// ── LOGIN ──
+function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pass').value.trim();
+  const found=USERS_DB.find(x=>x.username===u&&x.password===p&&x.status==='active');
+  if(!found){document.getElementById('login-error').style.display='flex';return;}
+  currentUser=found;
+  document.getElementById('login-page').style.display='none';
+  document.getElementById('sidebar-name').textContent=found.name;
+  document.getElementById('sidebar-role').textContent=found.role==='admin'?'ผู้ดูแลระบบ':'ผู้ใช้งาน';
+  document.getElementById('sidebar-avatar').textContent=found.name.charAt(0);
+  if(found.role!=='admin'){
+    document.getElementById('nav-users').style.display='none';
+    document.getElementById('btn-add-med').style.display='none';
+  }
+  initApp();
+}
+function doLogout(){currentUser=null;document.getElementById('login-page').style.display='flex';}
+
+// ── EMPLOYEE LOOKUP ENGINE ──
+function onEmpIdType(prefix){
+  const val=document.getElementById(prefix+'-empid').value;
+  const card=document.getElementById(prefix+'-emp-card');
+  const notFound=document.getElementById(prefix+'-emp-not-found');
+  if(card.classList.contains('show')&&val===''){resetEmpLookup(prefix);}
+  notFound.classList.remove('show');
+  document.getElementById(prefix+'-empid').className='emp-id-input';
+}
+
+async function lookupEmployee(prefix){
+  const empId=document.getElementById(prefix+'-empid').value.trim().toUpperCase();
+  if(!empId){alert('กรุณากรอกรหัสพนักงาน');return;}
+
+  const card=document.getElementById(prefix+'-emp-card');
+  const notFound=document.getElementById(prefix+'-emp-not-found');
+  const status=document.getElementById(prefix+'-lookup-status');
+  const inp=document.getElementById(prefix+'-empid');
+  const btn=document.getElementById(prefix+'-lookup-btn');
+
+  card.classList.remove('show');
+  notFound.classList.remove('show');
+  status.classList.add('show');
+  btn.disabled=true;
+  inp.className='emp-id-input loading';
+
+  let emp=null;
+
+  // 1. Check cache
+  if(empLookupCache[empId]){
+    emp=empLookupCache[empId];
+  }
+  // 2. Try GAS if configured
+  else if(USE_GAS&&GAS_URL){
+    try{
+      const r=await gasCall({action:'getAll',sheet:'Employees'});
+      if(r&&r.ok&&r.data){
+        const found=r.data.find(e=>String(e.empId).toUpperCase()===empId);
+        if(found){emp=found;empLookupCache[empId]=found;}
+      }
+    }catch(e){/* fallback to demo */}
+  }
+  // 3. Fallback: Demo DB
+  if(!emp){
+    await new Promise(r=>setTimeout(r,400)); // simulate async
+    emp=EMPLOYEES_DB.find(e=>e.empId.toUpperCase()===empId)||null;
+    if(emp)empLookupCache[empId]=emp;
+  }
+
+  status.classList.remove('show');
+  btn.disabled=false;
+
+  if(emp){
+    inp.className='emp-id-input found';
+    document.getElementById(prefix+'-emp-avatar').textContent=emp.name.charAt(0);
+    document.getElementById(prefix+'-emp-avatar').style.background=avatarColor(emp.name);
+    document.getElementById(prefix+'-emp-name').textContent=emp.name;
+    document.getElementById(prefix+'-emp-dept').textContent=emp.dept;
+    document.getElementById(prefix+'-emp-id-display').textContent=emp.empId;
+    if(document.getElementById(prefix+'-emp-status'))
+      document.getElementById(prefix+'-emp-status').textContent=emp.status==='active'?'ปฏิบัติงาน':'ลาออก';
+    inp.disabled=true;
+    btn.style.display='none';
+    card.classList.add('show');
+  } else {
+    inp.className='emp-id-input not-found';
+    notFound.classList.add('show');
+  }
+}
+
+function resetEmpLookup(prefix){
+  const inp=document.getElementById(prefix+'-empid');
+  const btn=document.getElementById(prefix+'-lookup-btn');
+  inp.value='';inp.className='emp-id-input';inp.disabled=false;
+  btn.style.display='flex';
+  document.getElementById(prefix+'-emp-card').classList.remove('show');
+  document.getElementById(prefix+'-emp-not-found').classList.remove('show');
+}
+
+function getSelectedEmp(prefix){
+  const card=document.getElementById(prefix+'-emp-card');
+  if(!card.classList.contains('show'))return null;
+  return{
+    empId:document.getElementById(prefix+'-emp-id-display').textContent,
+    empName:document.getElementById(prefix+'-emp-name').textContent,
+    dept:document.getElementById(prefix+'-emp-dept').textContent,
+  };
+}
+
+// ── SETTINGS ──
+function setMode(m){
+  USE_GAS=m==='gas';
+  document.getElementById('mode-demo').classList.toggle('active',m==='demo');
+  document.getElementById('mode-gas').classList.toggle('active',m==='gas');
+  updateConnBadges();
+}
+function onGasUrlChange(){
+  GAS_URL=document.getElementById('gas-url').value.trim();
+  updateGasDot();
+}
+function updateGasDot(){
+  const dot=document.getElementById('gas-dot');
+  const txt=document.getElementById('gas-status-text');
+  if(!GAS_URL){dot.className='gas-dot';txt.textContent='ยังไม่ได้ตั้งค่า URL';return;}
+  if(GAS_URL.includes('script.google.com')){dot.className='gas-dot connected';txt.textContent='URL พร้อมใช้งาน (ยังไม่ได้ทดสอบ)';}
+  else{dot.className='gas-dot error';txt.textContent='URL ไม่ถูกต้อง';}
+}
+function updateConnBadges(){
+  ['so','fa'].forEach(p=>{
+    const badge=document.getElementById(p+'-conn-badge');
+    if(!badge)return;
+    badge.innerHTML=USE_GAS&&GAS_URL
+      ?'<span class="badge badge-green" style="font-size:10px">☁️ Google Sheets</span>'
+      :'<span class="badge badge-gray" style="font-size:10px">🎭 Demo</span>';
+  });
+}
+async function testGasConnection(){
+  if(!GAS_URL){alert('กรุณากรอก Script URL ก่อน');return;}
+  showSuccess('กำลังทดสอบ...','กรุณารอสักครู่','🔍');
+  try{
+    const r=await gasCall({action:'getAll',sheet:'Employees'});
+    if(r&&r.ok){
+      if(r.data&&r.data.length){EMPLOYEES_DB=r.data;empLookupCache={};}
+      showSuccess('เชื่อมต่อสำเร็จ!',`โหลดพนักงาน ${r.data?r.data.length:0} คนจาก Google Sheets`,'✅');
+      renderEmpDemoList();return;
+    }
+    showSuccess('เชื่อมต่อไม่ได้','ตรวจสอบ URL และสิทธิ์การเข้าถึง','❌');
+  }catch(e){showSuccess('เชื่อมต่อไม่ได้','กรุณาตรวจสอบ URL และ CORS','❌');}
+}
+async function saveGasSettings(){
+  GAS_URL=document.getElementById('gas-url').value.trim();
+  updateGasDot();updateConnBadges();
+  if(USE_GAS&&GAS_URL){await loadAllFromSheets();renderMedTable();renderReceiveHistory();renderIssueHistory();renderFirstAidHistory();renderReports();renderEmpDemoList();}
+  showSuccess('บันทึกตั้งค่าสำเร็จ',USE_GAS&&GAS_URL?'โหลดข้อมูลจาก Google Sheets แล้ว':'ใช้ Demo Mode','⚙️');
+}
+
+// Demo employees
+async function addDemoEmp(){
+  const id=document.getElementById('ne-id').value.trim().toUpperCase();
+  const name=document.getElementById('ne-name').value.trim();
+  if(!id||!name){alert('กรุณากรอกรหัสและชื่อ');return;}
+  if(EMPLOYEES_DB.find(e=>e.empId===id)){alert('รหัสนี้มีอยู่แล้ว');return;}
+  const emp={empId:id,name,dept:document.getElementById('ne-dept').value,position:document.getElementById('ne-pos').value,status:'active'};
+  EMPLOYEES_DB.push(emp);
+  empLookupCache={};
+  await gasAppend('Employees',emp);
+  closeModal('modal-add-emp');
+  renderEmpDemoList();
+  showSuccess('เพิ่มพนักงานสำเร็จ',`${id} - ${name}`,'👤');
+}
+function renderEmpDemoList(){
+  document.getElementById('emp-count').textContent=EMPLOYEES_DB.length;
+  document.getElementById('emp-demo-list').innerHTML=EMPLOYEES_DB.map(e=>`
+    <tr><td><span class="tag">${e.empId}</span></td><td class="font-bold">${e.name}</td><td>${e.dept}</td><td style="color:var(--text3)">${e.position}</td></tr>
+  `).join('');
+}
+
+// ── DASHBOARD ──
+function todayLocalStr(){
+  const d=new Date();
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+function renderDashboard(){
+  const today=new Date();
+  const thisMonth=todayLocalStr().slice(0,7);
+  const lowCount=MEDICINES_DB.filter(m=>getMedStatus(m)==='low').length;
+  const alertCount=MEDICINES_DB.filter(m=>getMedStatus(m)!=='ok').length;
+  const issueMonth=ISSUE_DB.filter(i=>i.date&&i.date.startsWith(thisMonth)).length;
+  document.getElementById('dash-total-med').textContent=MEDICINES_DB.length;
+  document.getElementById('dash-low-stock').textContent=lowCount;
+  document.getElementById('dash-expire').textContent=alertCount;
+  document.getElementById('dash-issue-month').textContent=issueMonth;
+  const alertMeds=MEDICINES_DB.filter(m=>getMedStatus(m)!=='ok');
+  document.getElementById('dash-alert-tbody').innerHTML=alertMeds.length
+    ?alertMeds.map(m=>{const s=getMedStatus(m);return`<tr>
+      <td><span class="tag">${m.id}</span></td>
+      <td class="font-bold">${m.name}</td>
+      <td class="${s==='expired'?'color-red':s==='low'?'color-amber':''} font-bold">${m.qty}</td>
+      <td>${m.min}</td>
+      <td>${getStatusBadge(s)}</td>
+      <td class="${s==='expired'?'color-red':s==='expire-soon'?'color-amber':''}">${m.exp}</td>
+    </tr>`;}).join('')
+    :'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">✅ ไม่มียาที่ต้องดำเนินการ</td></tr>';
+}
+
+
+function getMedStatus(m){
+  const today=new Date();const expDate=new Date(m.exp);const d90=new Date();d90.setDate(d90.getDate()+90);
+  if(expDate<today)return'expired';if(expDate<d90)return'expire-soon';if(m.qty<m.min)return'low';return'ok';
+}
+function getStatusBadge(s){
+  if(s==='expired')return'<span class="badge badge-red">หมดอายุ</span>';
+  if(s==='expire-soon')return'<span class="badge badge-amber">ใกล้หมดอายุ</span>';
+  if(s==='low')return'<span class="badge badge-amber">ใกล้หมด</span>';
+  return'<span class="badge badge-green">ปกติ</span>';
+}
+function renderMedTable(){
+  const search=document.getElementById('med-search').value.toLowerCase();
+  const cat=document.getElementById('med-cat-filter').value;
+  const sf=document.getElementById('med-status-filter').value;
+  const isAdmin=currentUser&&currentUser.role==='admin';
+  document.getElementById('med-tbody').innerHTML=MEDICINES_DB.filter(m=>{
+    const s=getMedStatus(m);
+    if(search&&!m.name.toLowerCase().includes(search)&&!m.id.toLowerCase().includes(search))return false;
+    if(cat&&m.cat!==cat)return false;
+    if(sf&&s!==sf)return false;
+    return true;
+  }).map(m=>{
+    const s=getMedStatus(m);
+    const pct=m.min>0?Math.min(100,Math.round(m.qty/m.min*100)):100;
+    const pc=pct<50?'var(--red)':pct<100?'var(--amber)':'var(--green)';
+    return`<tr>
+      <td><span class="tag">${m.id}</span></td><td class="font-bold">${m.name}</td>
+      <td><span class="badge badge-blue">${m.cat}</span></td><td>${m.unit}</td>
+      <td class="font-bold ${s==='low'||s==='expired'?'color-red':s==='expire-soon'?'color-amber':'color-green'}">${m.qty}</td>
+      <td>${m.min}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><div class="progress" style="flex:1"><div class="progress-bar" style="width:${pct}%;background:${pc}"></div></div><span style="font-size:11px;color:var(--text3)">${pct}%</span></div></td>
+      <td style="color:${s==='expired'?'var(--red)':s==='expire-soon'?'var(--amber)':'var(--text2)'}">${m.exp}</td>
+      <td>${getStatusBadge(s)}</td>
+      <td>${isAdmin?`<div style="display:flex;gap:4px"><button class="btn btn-outline btn-sm" onclick="editMed('${m.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="confirmDelete('med','${m.id}')">🗑️</button></div>`:'—'}</td>
+    </tr>`;
+  }).join('');
+}
+function filterMeds(){renderMedTable()}
+function editMed(id){
+  const m=MEDICINES_DB.find(x=>x.id===id);if(!m)return;
+  document.getElementById('med-modal-title').textContent='✏️ แก้ไขยา';
+  document.getElementById('med-edit-id').value=id;
+  ['id','name','cat','unit','qty','min','exp','loc'].forEach(f=>document.getElementById('med-'+f).value=m[f]||'');
+  openModal('modal-add-med');
+}
+async function saveMedicine(){
+  const editId=document.getElementById('med-edit-id').value;
+  const data={id:document.getElementById('med-id').value,name:document.getElementById('med-name').value,cat:document.getElementById('med-cat').value,unit:document.getElementById('med-unit').value,qty:parseInt(document.getElementById('med-qty').value)||0,min:parseInt(document.getElementById('med-min').value)||0,exp:document.getElementById('med-exp').value,loc:document.getElementById('med-loc').value};
+  if(!data.name){alert('กรุณากรอกชื่อยา');return;}
+  if(editId){
+    const i=MEDICINES_DB.findIndex(x=>x.id===editId);
+    if(i>=0)MEDICINES_DB[i]=data;
+    await gasUpdate('Medicines',data);
+  } else {
+    MEDICINES_DB.push(data);
+    await gasAppend('Medicines',data);
+  }
+  closeModal('modal-add-med');document.getElementById('med-edit-id').value='';
+  renderMedTable();populateMedDropdowns();showSuccess('บันทึกสำเร็จ','ข้อมูลยาถูกบันทึกแล้ว');
+}
+function confirmDelete(type,id){
+  openModal('modal-confirm');
+  document.getElementById('confirm-delete-btn').onclick=async function(){
+    if(type==='med'){
+      const i=MEDICINES_DB.findIndex(x=>x.id===id);
+      if(i>=0)MEDICINES_DB.splice(i,1);
+      await gasDelete('Medicines',id);
+      renderMedTable();
+    }
+    if(type==='user'){const i=USERS_DB.findIndex(x=>x.id===id);if(i>=0)USERS_DB.splice(i,1);
+saveUsersDB();
+renderUsers();}
+    closeModal('modal-confirm');showSuccess('ลบสำเร็จ','รายการถูกลบแล้ว','🗑️');
+  };
+}
+function populateMedDropdowns(){
+  ['ri-med','is-med'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML='<option value="">-- เลือกยา --</option>'+MEDICINES_DB.map(m=>`<option value="${m.id}">${m.name} (คงเหลือ: ${m.qty} ${m.unit})</option>`).join('');
+  });
+}
+function showMedStock(){
+  const id=document.getElementById('is-med').value;
+  const m=MEDICINES_DB.find(x=>x.id===id);
+  document.getElementById('is-stock-hint').textContent=m?`(คงเหลือ ${m.qty} ${m.unit})`:'';
+}
+
+// ── STOCK IN ──
+function renderLowStockList(){
+  const low=MEDICINES_DB.filter(m=>getMedStatus(m)!=='ok');
+  document.getElementById('low-stock-list').innerHTML=low.length?low.map(m=>{
+    const s=getMedStatus(m);
+    return`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span style="color:var(--text2)">${m.name}</span>
+      <div style="display:flex;align-items:center;gap:8px"><span class="font-bold ${s==='expired'?'color-red':'color-amber'}">${m.qty} ${m.unit}</span>${getStatusBadge(s)}</div>
+    </div>`;
+  }).join(''):'<div style="color:var(--text3);font-size:13px;padding:12px 0">✅ ยาทุกรายการมีสต็อกเพียงพอ</div>';
+}
+async function saveReceive(){
+  const medId=document.getElementById('ri-med').value;
+  const med=MEDICINES_DB.find(x=>x.id===medId);
+  const qty=parseInt(document.getElementById('ri-qty').value)||0;
+  if(!med){alert('กรุณาเลือกยา');return;}
+  if(qty<=0){alert('กรุณากรอกจำนวน');return;}
+  med.qty+=qty;
+  if(document.getElementById('ri-exp').value)med.exp=document.getElementById('ri-exp').value;
+  const rec={id:'R'+String(Date.now()),date:document.getElementById('ri-date').value,medId,medName:med.name,qty,lot:document.getElementById('ri-lot').value,exp:document.getElementById('ri-exp').value,remark:document.getElementById('ri-remark').value,by:currentUser?currentUser.name:'ผู้ใช้'};
+  RECEIVE_DB.unshift(rec);
+  await Promise.all([gasAppend('StockIn',rec),gasUpdate('Medicines',med)]);
+  renderReceiveHistory();renderLowStockList();populateMedDropdowns();
+  document.getElementById('ri-qty').value='';document.getElementById('ri-lot').value='';
+  showSuccess('เติมสต็อกสำเร็จ',`${med.name} +${qty} ${med.unit} (คงเหลือ ${med.qty})`,'📦');
+}
+function renderReceiveHistory(){
+  document.getElementById('receive-history').innerHTML=RECEIVE_DB.map(r=>`
+    <tr><td><span class="tag">${r.id}</span></td><td>${r.date}</td><td class="font-bold">${r.medName}</td><td class="color-green font-bold">+${r.qty}</td><td>${r.lot}</td><td>${r.exp}</td><td style="color:var(--text3)">${r.by}</td></tr>
+  `).join('');
+}
+
+// ── STOCK OUT ──
+async function saveIssue(){
+  const emp=getSelectedEmp('so');
+  if(!emp){alert('กรุณาค้นหาและเลือกพนักงานก่อน');return;}
+  const medId=document.getElementById('is-med').value;
+  const med=MEDICINES_DB.find(x=>x.id===medId);
+  const qty=parseInt(document.getElementById('is-qty').value)||0;
+  if(!med){alert('กรุณาเลือกยา');return;}
+  if(qty<=0){alert('กรุณากรอกจำนวน');return;}
+  const alert_el=document.getElementById('is-alert');
+  if(qty>med.qty){alert_el.style.display='flex';alert_el.textContent=`⚠️ สต็อกไม่พียงพอ (คงเหลือ ${med.qty} ${med.unit})`;return;}
+  alert_el.style.display='none';
+  med.qty-=qty;
+  const issueDate = document.getElementById('is-date').value;
+
+const rec={
+  id:'I'+String(Date.now()),
+  date: issueDate,
+  empId:emp.empId,
+  empName:emp.empName,
+  dept:emp.dept,
+  medId,
+  medName:med.name,
+  qty,
+  symptom:document.getElementById('is-symptom').value,
+  remark:document.getElementById('is-remark').value,
+  by:currentUser ? currentUser.name : 'ผู้ใช้'
+};
+  ISSUE_DB.unshift(rec);
+  const now=new Date();
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}</td><td>${emp.empName}</td><td>${med.name}</td><td>${qty}</td>`;
+  document.getElementById('issue-today-tbody').prepend(tr);
+  await Promise.all([gasAppend('StockOut',rec),gasUpdate('Medicines',med)]);
+  renderIssueHistory();populateMedDropdowns();
+  resetEmpLookup('so');
+  document.getElementById('is-symptom').value='';document.getElementById('is-qty').value='';document.getElementById('is-remark').value='';
+  showSuccess('เบิกยาสำเร็จ',`${emp.empName} — ${med.name} ${qty} ${med.unit}`,'💊');
+}
+function renderIssueHistory(){
+  document.getElementById('issue-history').innerHTML=ISSUE_DB.map(i=>`
+    <tr><td><span class="tag">${i.id}</span></td><td>${i.date}</td><td>${i.empId}</td><td class="font-bold">${i.empName}</td><td>${i.dept}</td><td>${i.medName}</td><td class="color-blue font-bold">${i.qty}</td><td>${i.symptom}</td></tr>
+  `).join('');
+}
+
+// ── FIRST AID ──
+async function saveFirstAid(){
+  const emp=getSelectedEmp('fa');
+  if(!emp){alert('กรุณาค้นหาและเลือกพนักงานก่อน');return;}
+  const injury=document.querySelector('input[name=injury]:checked');
+  const mats=[...document.querySelectorAll('#page-firstaid input[type=checkbox]:checked')].map(x=>x.value).join(',');
+  const rec={id:'FA'+String(Date.now()),date:document.getElementById('fa-date').value,empId:emp.empId,empName:emp.empName,dept:emp.dept,caseType:document.getElementById('fa-casetype').value,injury:injury?injury.value:'',symptoms:document.getElementById('fa-symptoms').value,treatment:document.getElementById('fa-treatment').value,materials:mats,recorder:currentUser?currentUser.name:'ผู้ใช้',refno:document.getElementById('fa-refno').value,lostdate:document.getElementById('fa-lostdate').value,lostdays:document.getElementById('fa-lostdays').value||0};
+  FIRSTAID_DB.unshift(rec);
+  await gasAppend('FirstAid',rec);
+  renderFirstAidHistory();resetEmpLookup('fa');
+  showSuccess('บันทึกสำเร็จ','บันทึกการทำแผลเรียบร้อยแล้ว','🩹');
+}
+function renderFirstAidHistory(){
+  const cc={'First Aid Case':'badge-green','Medical Treatment Case':'badge-amber','Restricted Work Case':'badge-amber','Lost Time Injury':'badge-red'};
+  document.getElementById('firstaid-history').innerHTML=FIRSTAID_DB.map(f=>`
+    <tr><td><span class="tag">${f.id}</span></td><td>${f.date}</td><td class="font-bold">${f.empName}</td><td>${f.dept}</td><td><span class="badge ${cc[f.caseType]||'badge-blue'}">${f.caseType}</span></td><td>${f.injury}</td><td style="font-size:11px;color:var(--text3)">${f.materials}</td></tr>
+  `).join('');
+}
+
+// ── USERS ──
+function renderUsers(){
+  document.getElementById('users-tbody').innerHTML=USERS_DB.map(u=>`
+    <tr><td><span class="tag">${u.id}</span></td><td class="font-bold">${u.username}</td><td>${u.name}</td><td>${u.dept}</td>
+    <td><span class="badge ${u.role==='admin'?'badge-purple':'badge-blue'}">${u.role==='admin'?'Admin':'User'}</span></td>
+    <td><span class="badge ${u.status==='active'?'badge-green':'badge-red'}">${u.status==='active'?'ใช้งาน':'ปิดใช้'}</span></td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-outline btn-sm" onclick="editUser('${u.id}')">✏️</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmDelete('user','${u.id}')">🗑️</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleUserStatus('${u.id}')" title="${u.status==='active'?'ปิดใช้งาน':'เปิดใช้งาน'}">${u.status==='active'?'🔒':'🔓'}</button>
+    </div></td>
+    </tr>
+  `).join('');
+}
+function toggleUserStatus(id){
+  const u = USERS_DB.find(x=>x.id===id);
+
+  if(u){
+    u.status = u.status==='active'
+      ? 'inactive'
+      : 'active';
+
+    saveUsersDB();
+  }
+
+  renderUsers();
+}
+function saveUser(){
+  const un=document.getElementById('u-username').value.trim();if(!un){alert('กรุณากรอกชื่อผู้ใช้');return;}
+  const editId=document.getElementById('u-edit-id').value;
+  if(editId){
+    const u=USERS_DB.find(x=>x.id===editId);
+    if(u){
+      u.username=un;
+      u.name=document.getElementById('u-name').value;
+      u.dept=document.getElementById('u-dept').value;
+      u.role=document.getElementById('u-role').value;
+      const newPass=document.getElementById('u-pass').value;
+      if(newPass)u.password=newPass;
+    }
+    showSuccess('แก้ไขสำเร็จ','ข้อมูลผู้ใช้ถูกอัปเดตแล้ว','✏️');
+  } else {
+    USERS_DB.push({id:'U'+String(USERS_DB.length+1).padStart(3,'0'),username:un,password:document.getElementById('u-pass').value,role:document.getElementById('u-role').value,name:document.getElementById('u-name').value,dept:document.getElementById('u-dept').value,status:'active'});
+    showSuccess('เพิ่มผู้ใช้สำเร็จ','บัญชีพร้อมใช้งานแล้ว','👤');
+  }
+  document.getElementById('u-edit-id').value='';
+  document.getElementById('user-modal-title').textContent='👤 เพิ่มผู้ใช้ใหม่';
+  document.getElementById('u-pass-hint').style.display='none';
+  saveUsersDB();
+closeModal('modal-add-user');
+renderUsers();
+}
+
+// ── REPORTS ──
+function renderReports(){
+  document.getElementById('rpt-stock-body').innerHTML=MEDICINES_DB.map(m=>{const s=getMedStatus(m);return`<tr><td><span class="tag">${m.id}</span></td><td class="font-bold">${m.name}</td><td>${m.cat}</td><td class="${s!=='ok'?'color-amber':''} font-bold">${m.qty}</td><td>${m.min}</td><td>${m.exp}</td><td>${getStatusBadge(s)}</td></tr>`;}).join('');
+  document.getElementById('rpt-issue-body').innerHTML=ISSUE_DB.map(i=>`<tr><td>${i.date}</td><td>${i.empId}</td><td class="font-bold">${i.empName}</td><td>${i.dept}</td><td>${i.medName}</td><td class="color-blue font-bold">${i.qty}</td><td>${i.symptom}</td></tr>`).join('');
+  document.getElementById('rpt-receive-body').innerHTML=RECEIVE_DB.map(r=>`<tr><td>${r.date}</td><td class="font-bold">${r.medName}</td><td class="color-green font-bold">+${r.qty}</td><td>${r.lot}</td><td>${r.exp}</td><td style="color:var(--text3)">${r.by}</td></tr>`).join('');
+  document.getElementById('rpt-firstaid-body').innerHTML=FIRSTAID_DB.map(f=>`<tr><td>${f.date}</td><td class="font-bold">${f.empName}</td><td>${f.dept}</td><td>${f.caseType}</td><td>${f.injury}</td><td style="font-size:11px">${f.materials}</td></tr>`).join('');
+}
+function showTab(btn,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#page-reports>div[id^="rpt"]').forEach(t=>t.style.display='none');
+  btn.classList.add('active');document.getElementById(id).style.display='block';
+}
+
+function populateReportYears(){
+  const sel=document.getElementById('report-year');
+  const currentYear=new Date().getFullYear();
+  const years=new Set();
+  ISSUE_DB.forEach(i=>{if(i.date)years.add(i.date.substring(0,4));});
+  RECEIVE_DB.forEach(r=>{if(r.date)years.add(r.date.substring(0,4));});
+  FIRSTAID_DB.forEach(f=>{if(f.date)years.add(f.date.substring(0,4));});
+  years.add(String(currentYear));
+  const sorted=[...years].sort((a,b)=>b-a);
+  while(sel.options.length>1)sel.remove(1);
+  sorted.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=String(Number(y)+543)+' ('+y+')';sel.appendChild(o);});
+}
+
+function getReportFilter(){
+  const m=document.getElementById('report-month').value;
+  const y=document.getElementById('report-year').value;
+  const emp=document.getElementById('report-empid').value.trim().toUpperCase();
+  return{month:m,year:y,emp};
+}
+
+function matchDate(dateStr,year,month){
+  if(!dateStr)return false;
+  if(year&&!dateStr.startsWith(year))return false;
+  if(month&&dateStr.substring(5,7)!==month)return false;
+  return true;
+}
+
+function renderReports(){
+  const{month,year,emp}=getReportFilter();
+  document.getElementById('rpt-stock-body').innerHTML=MEDICINES_DB.map(m=>{const s=getMedStatus(m);return`<tr><td><span class="tag">${m.id}</span></td><td class="font-bold">${m.name}</td><td>${m.cat}</td><td class="${s!=='ok'?'color-amber':''} font-bold">${m.qty}</td><td>${m.min}</td><td>${m.exp}</td><td>${getStatusBadge(s)}</td></tr>`;}).join('');
+  const issues=ISSUE_DB.filter(i=>matchDate(i.date,year,month)&&(!emp||String(i.empId).toUpperCase().includes(emp)));
+  document.getElementById('rpt-issue-body').innerHTML=issues.length?issues.map(i=>`<tr><td>${i.date}</td><td>${i.empId}</td><td class="font-bold">${i.empName}</td><td>${i.dept}</td><td>${i.medName}</td><td class="color-blue font-bold">${i.qty}</td><td>${i.symptom}</td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">ไม่พบข้อมูล</td></tr>';
+  const receives=RECEIVE_DB.filter(r=>matchDate(r.date,year,month));
+  document.getElementById('rpt-receive-body').innerHTML=receives.length?receives.map(r=>`<tr><td>${r.date}</td><td class="font-bold">${r.medName}</td><td class="color-green font-bold">+${r.qty}</td><td>${r.lot}</td><td>${r.exp}</td><td style="color:var(--text3)">${r.by}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">ไม่พบข้อมูล</td></tr>';
+  const faids=FIRSTAID_DB.filter(f=>matchDate(f.date,year,month)&&(!emp||String(f.empId||'').toUpperCase().includes(emp)||String(f.empName||'').toUpperCase().includes(emp)));
+  document.getElementById('rpt-firstaid-body').innerHTML=faids.length?faids.map(f=>`<tr><td>${f.date}</td><td class="font-bold">${f.empName}</td><td>${f.dept}</td><td>${f.caseType}</td><td>${f.injury}</td><td style="font-size:11px">${f.materials}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">ไม่พบข้อมูล</td></tr>';
+}
+
+
+function filterReports(){
+  renderReports();
+}
+
+function clearReportFilter(){
+  document.getElementById('report-month').value='';
+  document.getElementById('report-year').value='';
+  document.getElementById('report-empid').value='';
+  renderReports();
+}
+
+function exportExcel() {
+
+    let table = null;
+
+    if (document.getElementById("rpt-stock").style.display != "none") {
+        table = document.querySelector("#rpt-stock table");
+    } else if (document.getElementById("rpt-issue").style.display != "none") {
+        table = document.querySelector("#rpt-issue table");
+    } else if (document.getElementById("rpt-receive").style.display != "none") {
+        table = document.querySelector("#rpt-receive table");
+    } else if (document.getElementById("rpt-firstaid").style.display != "none") {
+        table = document.querySelector("#rpt-firstaid table");
+    }
+
+    if (!table) {
+        alert("ไม่พบข้อมูล");
+        return;
+    }
+
+    let html = table.outerHTML;
+
+    let link = document.createElement("a");
+    link.href = "data:application/vnd.ms-excel," + encodeURIComponent(html);
+
+    // ตั้งชื่อไฟล์ตามแท็บ
+    let filename = "Report.xls";
+    if (table.closest("#rpt-stock")) filename = "รายงานคงเหลือยา.xls";
+    if (table.closest("#rpt-issue")) filename = "รายงานเบิกยา.xls";
+    if (table.closest("#rpt-receive")) filename = "รายงานเติมสต็อก.xls";
+    if (table.closest("#rpt-firstaid")) filename = "รายงานทำแผล.xls";
+
+    link.download = filename;
+    link.click();
+}
+
+
+// ── UI HELPERS ──
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  const titles={dashboard:'Dashboard',medicines:'จัดการยา','stock-in':'เติมสต็อก','stock-out':'เบิกยา',firstaid:'บันทึกการปฐมพยาบาล/ทำแผล/การใช้ยาร่วม',reports:'รายงาน',users:'ผู้ใช้งาน',settings:'ตั้งค่าระบบ'};
+  document.getElementById('page-title').textContent=titles[id]||id;
+  if(id==='dashboard'){renderDashboard();setTimeout(initCharts,100);}
+  if(id==='medicines')renderMedTable();
+  if(id==='reports')renderReports();
+  if(id==='users')renderUsers();
+  if(id==='settings'){renderEmpDemoList();updateGasDot();}
+  if(id==='stock-in'){populateMedDropdowns();renderLowStockList();document.getElementById('ri-date').value=todayLocalStr();}
+  
+  if(id==='stock-out'){populateMedDropdowns();document.getElementById('is-date').value=todayLocalStr();}
+  
+  if(id==='firstaid'){document.getElementById('fa-date').value=todayLocalStr();}
+}
+function openModal(id){document.getElementById(id).classList.remove('hidden')}
+function closeModal(id){document.getElementById(id).classList.add('hidden')}
+function showSuccess(title,msg,icon='✅'){
+  document.getElementById('success-icon').textContent=icon;
+  document.getElementById('success-title').textContent=title;
+  document.getElementById('success-msg').textContent=msg;
+  openModal('modal-success');setTimeout(()=>closeModal('modal-success'),2500);
+}
+
+// ── CHARTS ──
+let _charts={};
+function destroyChart(id){if(_charts[id]){_charts[id].destroy();delete _charts[id];}}
+
+function getMonthLabels(n){
+  const thMonths=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const result=[];const now=new Date();
+  for(let i=n-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);result.push(thMonths[d.getMonth()]);}
+  return result;
+}
+function getMonthKeys(n){
+  const result=[];const now=new Date();
+  for(let i=n-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);result.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);}
+  return result;
+}
+
+function initCharts(){
+  const base={responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#6b7599',font:{size:11}}},y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#6b7599',font:{size:11}}}}};
+  const months=getMonthLabels(6);
+  const monthKeys=getMonthKeys(6);
+
+  // ── กราฟเบิกยารายเดือน (จาก ISSUE_DB จริง) ──
+  const issueData=monthKeys.map(k=>ISSUE_DB.filter(i=>i.date&&i.date.startsWith(k)).length);
+  destroyChart('chart-issue');
+  _charts['chart-issue']=new Chart(document.getElementById('chart-issue'),{
+    type:'bar',
+    data:{labels:months,datasets:[{data:issueData,backgroundColor:'rgba(59,130,246,0.7)',borderRadius:6,borderSkipped:false}]},
+    options:base
+  });
+
+  // ── กราฟยาที่เติมสต็อกมากที่สุด (จาก RECEIVE_DB จริง) ──
+  const topMeds=[...RECEIVE_DB.reduce((acc,r)=>{
+    acc.set(r.medName,(acc.get(r.medName)||0)+Number(r.qty));
+    return acc;
+  },new Map())].sort((a,b)=>b[1]-a[1]).slice(0,10);
+  destroyChart('chart-receive');
+  _charts['chart-receive']=new Chart(document.getElementById('chart-receive'),{
+    type:'bar',
+    data:{
+      labels:topMeds.map(x=>x[0]),
+      datasets:[{label:'จำนวนที่เติม',data:topMeds.map(x=>x[1]),backgroundColor:'rgba(59,130,246,0.7)'}]
+    },
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}}}
+  });
+
+  // ── กราฟพนักงานที่ใช้บริการปฐมพยาบาลบ่อย (จาก FIRSTAID_DB จริง) ──
+  const topEmp=[...FIRSTAID_DB.reduce((acc,f)=>{
+    acc.set(f.empName,(acc.get(f.empName)||0)+1);
+    return acc;
+  },new Map())].sort((a,b)=>b[1]-a[1]).slice(0,10);
+  destroyChart('chart-firstaid');
+  _charts['chart-firstaid']=new Chart(document.getElementById('chart-firstaid'),{
+    type:'bar',
+    data:{
+      labels:topEmp.map(x=>x[0]),
+      datasets:[{label:'จำนวนครั้ง',data:topEmp.map(x=>x[1]),backgroundColor:'rgba(249,115,22,0.7)'}]
+    },
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}}}
+  });
+
+  // ── พนักงานที่เบิกยาบ่อยที่สุด (จาก ISSUE_DB จริง) ──
+  const topIssueEmp=[...ISSUE_DB.reduce((acc,i)=>{
+    acc.set(i.empName,(acc.get(i.empName)||0)+1);
+    return acc;
+  },new Map())].sort((a,b)=>b[1]-a[1]).slice(0,10);
+  destroyChart('chart-symptoms');
+  _charts['chart-symptoms']=new Chart(document.getElementById('chart-symptoms'),{
+    type:'bar',
+    data:{
+      labels:topIssueEmp.map(x=>x[0]),
+      datasets:[{label:'จำนวนครั้ง',data:topIssueEmp.map(x=>x[1]),backgroundColor:'rgba(234,179,8,0.7)'}]
+    },
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}}}
+  });
+}
+
+// ── GAS API HELPER ──
+async function gasCall(params){
+  const url=new URL(GAS_URL);
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,typeof v==='object'?JSON.stringify(v):v));
+  try{
+    // redirect:'follow' แก้ปัญหา file:// CORS กับ GAS ที่ redirect ก่อนตอบ
+    const r=await fetch(url.toString(),{method:'GET',redirect:'follow'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const text=await r.text();
+    try{return JSON.parse(text);}
+    catch{console.warn('GAS non-JSON response:',text.substring(0,200));return{ok:false,error:'non-JSON'};}
+  }catch(e){
+    // แสดง error ใน UI ถ้า GAS ใช้ไม่ได้
+    console.warn('GAS error',e);
+    updateGasErrorUI(e.toString());
+    return{ok:false,error:e.toString()};
+  }
+}
+
+function updateGasErrorUI(msg){
+  const dot=document.getElementById('gas-dot');
+  const txt=document.getElementById('gas-status-text');
+  if(dot){dot.className='gas-dot error';}
+  if(txt){
+    if(msg.includes('Failed to fetch')||msg.includes('NetworkError')){
+      txt.textContent='❌ เชื่อมต่อไม่ได้ — เปิดไฟล์ผ่าน web server หรือตรวจสอบ GAS URL';
+      txt.style.color='var(--red)';
+    } else {
+      txt.textContent='❌ '+msg.substring(0,80);
+      txt.style.color='var(--red)';
+    }
+  }
+}
+
+async function gasAppend(sheet,row){
+  if(!USE_GAS||!GAS_URL)return;
+  await gasCall({action:'append',sheet,row});
+}
+
+async function gasUpdate(sheet,row,idCol='id'){
+  if(!USE_GAS||!GAS_URL)return;
+  await gasCall({action:'update',sheet,row,idCol});
+}
+
+async function gasDelete(sheet,idVal,idCol='id'){
+  if(!USE_GAS||!GAS_URL)return;
+  await gasCall({action:'delete',sheet,idVal,idCol});
+}
+
+async function gasGetAll(sheet){
+  if(!USE_GAS||!GAS_URL)return null;
+  const r=await gasCall({action:'getAll',sheet});
+  return(r&&r.ok)?r.data:null;
+}
+
+async function ensureHeaders(){
+  const sheets={
+    Medicines:['id','name','cat','unit','qty','min','exp','loc'],
+    StockIn:['id','date','medId','medName','qty','lot','exp','remark','by'],
+    StockOut:['id','date','empId','empName','dept','medId','medName','qty','symptom','remark','by'],
+    FirstAid:['id','date','empId','empName','dept','caseType','injury','symptoms','treatment','materials','recorder','refno','lostdate','lostdays'],
+    Employees:['empId','name','dept','position','status'],
+  };
+  for(const [sheet,headers] of Object.entries(sheets)){
+    await gasCall({action:'initHeaders',sheet,headers});
+  }
+}
+
+async function loadAllFromSheets(){
+  // เคลียร์ข้อมูล demo ออกก่อนเสมอเมื่อเชื่อมต่อ GAS
+  MEDICINES_DB=[];RECEIVE_DB=[];ISSUE_DB=[];FIRSTAID_DB=[];
+  const [meds,receive,issue,fa,emps]=await Promise.all([
+    gasGetAll('Medicines'),gasGetAll('StockIn'),gasGetAll('StockOut'),gasGetAll('FirstAid'),gasGetAll('Employees')
+  ]);
+  if(meds&&meds.length){MEDICINES_DB=meds.map(m=>({...m,qty:Number(m.qty)||0,min:Number(m.min)||0}));}
+  if(receive&&receive.length){RECEIVE_DB=receive.map(r=>({...r,qty:Number(r.qty)||0})).reverse();}
+  if(issue&&issue.length){ISSUE_DB=issue.map(i=>({...i,qty:Number(i.qty)||0})).reverse();}
+  if(fa&&fa.length){FIRSTAID_DB=fa.map(f=>({...f,lostdays:Number(f.lostdays)||0})).reverse();}
+  if(emps&&emps.length){EMPLOYEES_DB=emps;empLookupCache={};}
+}
+
+// ── INIT ──
+async function initApp(){
+  document.getElementById('page-title').textContent='กำลังโหลดข้อมูล...';
+  if(USE_GAS&&GAS_URL){
+    await ensureHeaders();
+    await loadAllFromSheets();
+  }
+  populateMedDropdowns();renderDashboard();renderMedTable();renderReceiveHistory();renderIssueHistory();renderFirstAidHistory();renderReports();renderEmpDemoList();updateConnBadges();
+  document.getElementById('page-title').textContent='Dashboard';
+  setTimeout(initCharts,300);
+}
+</script>
+</body>
+</html>
